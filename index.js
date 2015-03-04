@@ -216,9 +216,10 @@ Object.defineProperties(Injector.prototype, {
       res.when = function(target) {
         if (observed === len) {
           target.apply(null, values);
-          return;
+        } else {
+          when.push(target);
         }
-        when.push(target);
+        return res;
       };
       var possibly = function possibly(name, value) {
         values[expecting[name].index] = value;
