@@ -286,16 +286,62 @@ Object.defineProperties(Injector.prototype, {
 
 });
 
-var _singleton;
+var _inner;
+
+function inner() {
+  if (!_inner) {
+    _inner = new Injector();
+  }
+  return _inner;
+}
 
 Object.defineProperties(Injector, {
 
-  singleton: {
-    get: function() {
-      if (!_singleton) {
-        _singleton = new Injector();
-      }
-      return _singleton;
+ get: {
+    enumerable: true,
+    value: function get(name) {
+      return inner().get(name);
+    }
+  },
+
+  set: {
+    enumerable: true,
+    value: function set(name, value) {
+      inner().set(name, value);
+    }
+  },
+
+  has: {
+    enumerable: true,
+    value: function has(name) {
+      return inner().has(name);
+    }
+  },
+
+  when: {
+    enumerable: true,
+    value: function when(services, target) {
+      inner().when(services, target);
+    }
+  },
+
+  capture: {
+    enumerable: true,
+    value: function capture(services) {
+      return inner().capture(services);
+   }
+  },
+
+  inject: {
+    enumerable: true,
+    value: function inject(services, target, missing) {
+      inner().inject(services, target, missing);
+   }
+  },
+
+  listUnfulfilled: {
+    value: function listUnfulfilled() {
+      return inner().listUnfulfilled();
     }
   }
 
