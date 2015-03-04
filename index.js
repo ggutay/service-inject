@@ -212,6 +212,14 @@ Object.defineProperties(Injector.prototype, {
         }
         _.apply(null, values);
       };
+      var when = [];
+      res.when = function(target) {
+        if (observed === len) {
+          target.apply(null, values);
+          return;
+        }
+        when.push(target);
+      };
       var possibly = function possibly(name, value) {
         values[expecting[name].index] = value;
         if (!expecting[name].observed) {
@@ -221,6 +229,10 @@ Object.defineProperties(Injector.prototype, {
             res.apply = function(target) {
               target.apply(null, values);
             };
+            when.forEach(function(fn) {
+              fn.apply(null, values);
+            });
+            when = null;
           }
         }
       };
