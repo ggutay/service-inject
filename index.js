@@ -148,15 +148,15 @@ Object.defineProperties(Injector.prototype, {
   when: {
     enumerable: true,
     value: function when(services, target) {
-      var capture = (typeof(services) === 'string') ? [services] : services;
-      assert.ok(Array.isArray(capture), '(arg 0) services must be either a string or an array');
+      var local = (typeof(services) === 'string') ? [services] : services;
+      assert.ok(Array.isArray(local), '(arg 0) services must be either a string or an array');
       assert.func(target, 'target');
-      var len = capture.length;
+      var len = local.length;
       var reg = this._services;
       if (len === 0) {
         target(); // when nothing ???
       } else if (len === 1) {
-        reg.when(capture[0], target);
+        reg.when(local[0], target);
       } else {
         var i = -1;
         var name;
@@ -182,6 +182,57 @@ Object.defineProperties(Injector.prototype, {
           reg.when(name, possibly.bind(null, name));
         }
       }
+    }
+  },
+
+  capture: {
+    enumerable: true,
+    value: function capture(services) {
+      var local = (typeof(services) === 'string') ? [services] : services;
+      assert.ok(Array.isArray(local), '(arg 0) services must be either a string or an array');
+      var len = local.length;
+      var reg = this._services;
+
+      var i = -1;
+      var name;
+      var expecting = {};
+      var observed = 0;
+      var values = [];
+      var res = {};
+      res.apply = function(_, missing) {
+        var j = -1;
+        var name;
+        while (++j < len) {
+          name = local[j];
+          if (!expecting[name].observed) {
+            if (typeof(missing) === 'undefined' || !missing(local[j])) {
+              return;
+            }
+          }
+        }
+        _.apply(null, values);
+      };
+      var possibly = function possibly(name, value) {
+        values[expecting[name].index] = value;
+        if (!expecting[name].observed) {
+          expecting[name].observed = true;
+          observed++;
+          if (observed === len) {
+            res.apply = function(target) {
+              target.apply(null, values);
+            };
+          }
+        }
+      };
+      while (++i < len) {
+        name = local[i];
+        expecting[name] = {
+          name: name,
+          index: i
+        };
+        reg.when(name, possibly.bind(null, name));
+      }
+      return res;
     }
   },
 
@@ -227,7 +278,7 @@ var _singleton;
 Object.defineProperties(Injector, {
 
   singleton: {
-    get: function () {
+    get: function() {
       if (!_singleton) {
         _singleton = new Injector();
       }

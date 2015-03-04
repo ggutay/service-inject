@@ -109,7 +109,7 @@ module.exports = (function() {
       describe('#when', function() {
 
         it('waiting for one service gets one service when set', function(done) {
-          var key = 'key#'+Math.random();
+          var key = 'key#' + Math.random();
           var value = new Date().toISOString();
           var target = function(injected) {
             try {
@@ -127,8 +127,8 @@ module.exports = (function() {
 
         it('waiting for two services gets two service when set', function(done) {
           this.timeout(3000);
-          var key = 'key#'+Math.random();
-          var key2 = 'key#'+Math.random();
+          var key = 'key#' + Math.random();
+          var key2 = 'key#' + Math.random();
           var value = new Date().toISOString();
           var value2;
           var target = function(v, v2) {
@@ -145,7 +145,6 @@ module.exports = (function() {
 
           // while waiting, injector will report unfulfilled
           var unfulfilled = inj.listUnfulfilled();
-          util.log(util.inspect(unfulfilled));
           expect(unfulfilled).to.be.an(Array);
           expect(unfulfilled.length).to.be(2);
 
@@ -159,9 +158,89 @@ module.exports = (function() {
         });
       });
 
+      describe('#capture', function() {
+
+        it('capturing one service applied when already set', function(done) {
+          var key = 'key#' + Math.random();
+          var value = new Date().toISOString();
+          var target = function(injected) {
+            try {
+              expect(injected).to.be(value);
+              done();
+            } catch (e) {
+              done(e);
+            }
+          };
+          var capture = inj.capture(key);
+          inj.set(key, value);
+          setTimeout(function() {
+            capture.apply(target);
+          }, 1000);
+        });
+
+        it('capturing one service does not apply when unset', function(done) {
+          var key = 'key#' + Math.random();
+          var value = new Date().toISOString();
+          var targetCalled;
+          var target = function(v, v2) {
+            targetCalled = true;
+          };
+          var capture = inj.capture(key);
+          setTimeout(
+            function() {
+              try {
+                expect(targetCalled).to.not.be.ok();
+                done();
+              } catch (e) {
+                done(e);
+              }
+            }, 500);
+        });
+
+        it('capturing one service applies when unset and missing handler returns truthy result', function(done) {
+          var key = 'key#' + Math.random();
+          var value = new Date().toISOString();
+          var target = function(injected) {
+            try {
+              expect(injected).to.not.be.ok();
+              done();
+            } catch (e) {
+              done(e);
+            }
+          };
+          var capture = inj.capture(key);
+          capture.apply(target, function(name) {
+            expect(name).to.be(key);
+            return true;
+          });
+        });
+
+        it('capturing two services does not apply when unset', function(done) {
+          this.timeout(3000);
+          var key = 'key#' + Math.random();
+          var key2 = 'key#' + Math.random();
+          var value = new Date().toISOString();
+          var value2;
+          var targetCalled;
+          var target = function(v, v2) {
+            targetCalled = true;
+          };
+          var capture = inj.capture([key, key2]);
+          capture.apply(target);
+          setTimeout(
+            function() {
+              try {
+                expect(targetCalled).to.not.be.ok();
+                done();
+              } catch (e) {
+                done(e);
+              }
+            }, 500);
+        });
+
+      });
+
     });
-
-
   });
 
 })();
