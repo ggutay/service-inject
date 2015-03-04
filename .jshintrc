@@ -1,0 +1,8 @@
+{
+  "node": true,
+	"strict": true,
+	"laxcomma": true,
+	"nomen": false,
+	"indent": 2,
+	"predef": ["module", "require", "setTimeout", "process", "Buffer", "__dirname"]
+}

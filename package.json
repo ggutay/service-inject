@@ -1,0 +1,28 @@
+{
+  "name": "service-inject",
+  "version": "0.1.0",
+  "description": "A service-injection utility for nodejs; reduces the need for boostrap coordination among modules.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha -R spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LeisureLink/service-inject"
+  },
+  "author": "Phillip Clark <phillip@flitbit.com>",
+  "dependencies": {
+    "assert-plus": "^0.1.5"
+  },
+  "devDependencies": {
+    "blanket": "^1.1.6",
+    "expect.js": "^0.3.1",
+    "mocha": "^2.0.1"
+  },
+  "config": {
+    "blanket": {
+      "pattern": "index.js",
+      "data-cover-never": "node_modules"
+    }
+  }
+}
