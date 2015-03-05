@@ -36,11 +36,13 @@ function Services() {
         var waiting = waiters[name];
         if (waiting) {
           delete waiters[name];
-          var i = -1,
-            len = waiting.length;
-          while (++i < len) {
-            waiting[i](value);
-          }
+          process.nextTick(function() {
+            var i = -1,
+              len = waiting.length;
+            while (++i < len) {
+              waiting[i](value);
+            }
+          });
         }
       }
     },
@@ -169,7 +171,9 @@ Object.defineProperties(Injector.prototype, {
             expecting[name].observed = true;
             observed++;
             if (observed === len) {
-              target.apply(null, values);
+              process.nextTick(function() {
+                target.apply(null, values);
+              });
             }
           }
         };
@@ -297,7 +301,12 @@ function inner() {
 
 Object.defineProperties(Injector, {
 
- get: {
+  inner: {
+    enumerable: true,
+    value: inner
+  },
+
+  get: {
     enumerable: true,
     value: function get(name) {
       return inner().get(name);
@@ -329,14 +338,14 @@ Object.defineProperties(Injector, {
     enumerable: true,
     value: function capture(services) {
       return inner().capture(services);
-   }
+    }
   },
 
   inject: {
     enumerable: true,
     value: function inject(services, target, missing) {
       inner().inject(services, target, missing);
-   }
+    }
   },
 
   listUnfulfilled: {
