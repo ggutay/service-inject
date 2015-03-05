@@ -82,7 +82,7 @@ function Injector(options) {
   options = options || {};
   assert.optionalString(options.readyEventName, 'options.readyEventName');
   assert.optionalString(options.removeEventName, 'options.removeEventName');
-  assert.optionalString(options.evictEventName, 'options.evictEventName');
+  assert.optionalString(options.replaceEventName, 'options.replaceEventName');
   events.EventEmitter.call(this);
 
   Object.defineProperties(this, {
@@ -103,7 +103,7 @@ function Injector(options) {
 
     replaceEventName: {
       enumerable: true,
-      value: options.evictEventName || 'service-replace',
+      value: options.replaceEventName || 'service-replace',
     }
 
   });
